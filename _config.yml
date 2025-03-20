@@ -103,4 +103,4 @@ theme: next
 deploy:
   type: git
   repo: git://github.com/whyuwhyi/whyuwhyi.github.io
-  branch: gh-pages
+  branch: main
