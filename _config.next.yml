@@ -179,7 +179,7 @@ links_settings:
   layout: block
 
 links:
-  #Title: https://example.com
+  Title: https://whywhy.me
 
 # Table of Contents in the Sidebar
 # Front-matter variable (nonsupport wrap expand_all).
