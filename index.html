@@ -182,7 +182,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2025-03-22 17:53:41 / Modified: 18:40:59" itemprop="dateCreated datePublished" datetime="2025-03-22T17:53:41+08:00">2025-03-22</time>
+      <time title="Created: 2025-03-22 17:53:41 / Modified: 22:23:47" itemprop="dateCreated datePublished" datetime="2025-03-22T17:53:41+08:00">2025-03-22</time>
     </span>
 
   
@@ -204,9 +204,16 @@
 <h2 id="实现-write-系统调用"><a href="#实现-write-系统调用" class="headerlink" title="实现 write() 系统调用"></a>实现 <code>write()</code> 系统调用</h2><p>为了能够在控制台上输出信息，我们需要实现 <code>write()</code> 系统调用。实现完<br><code>write()</code> 系统调用之后，我们就可以为微内核实现控制太打印信息的相关函数<br>和宏了。</p>
 <h2 id="实现-shutdown"><a href="#实现-shutdown" class="headerlink" title="实现 shutdown()"></a>实现 <code>shutdown()</code></h2><p>为了实现模拟器（系统）的关机，我们需要调用 <code>sbi</code> 提供的 <code>shutdown()</code> 系统调用。<br><code>sbi</code> 是 <code>RISC-V</code> 的一种底层规范，用于实现操作系统和硬件之间的通信。同应用程序<br>访问操作系统的系统调用一样，操作系统通过 <code>ecall</code> 指令访问 <code>sbi</code> 提供的</p>
 <h2 id="程序内存布局和清空-bss-段"><a href="#程序内存布局和清空-bss-段" class="headerlink" title="程序内存布局和清空 bss 段"></a>程序内存布局和清空 <code>bss</code> 段</h2><p>没什么好说的了，按照需要设置程序的内存布局（个人认为应该说是操作系统的内存布局吧），<br>然后在内核初始化时需要清空 <code>bss</code> 段。关于 <code>bss</code> 段，程序分配的全局变量储存在 <code>bss</code> 段，<br>他们的初值被设定为0。（亦是为什么要清空 <code>bss</code> 段）</p>
-<h1 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h1><h2 id="switch-函数"><a href="#switch-函数" class="headerlink" title="__switch() 函数"></a>__switch() 函数</h2><p>__swicth 函数实现上下文切换，上下文切换的时候需要保存当前的寄存器状态，<br>然后恢复下一个任务的寄存器状态。</p>
-<p>具体的说，保存当前任务上下文的 <code>ra</code> <code>sp</code> <code>s0-s11</code> 寄存器，然后恢复下一个任务的寄存器状态。</p>
-<p>在实现的时候，遵循 <code>RISC-V</code> 的函数调用约定，使用 <code>a0</code> 和 <code>a1</code> 寄存器传递函数调用参数，<br>即当前任务和下一个任务的 <code>TaskContext</code> 指针。</p>
+<h1 id="ch2"><a href="#ch2" class="headerlink" title="ch2"></a>ch2</h1><h2 id="加载批处理程序到内核"><a href="#加载批处理程序到内核" class="headerlink" title="加载批处理程序到内核"></a>加载批处理程序到内核</h2><p><code>link_app.S</code> 将应用程序链接到内核，目前我对此汇编的理解，就是将应用程序加载进内核。</p>
+<p><code>AppManager</code> 初始化的时候，从内核中读取 <code>num_app</code> 以及每个 <code>app</code> 的起始地址。</p>
+<p><code>load_app()</code> 函数将应用程序加载到内存中，具体的，加载到内存约定的应用程序地址处，<br>这里是 <code>0x80400000</code> 。</p>
+<h2 id="实现特权级切换"><a href="#实现特权级切换" class="headerlink" title="实现特权级切换"></a>实现特权级切换</h2><p><code>RISC-V</code> 共有三种特权级，分别是 <code>M</code> 级、<code>S</code> 级和 <code>U</code> 级。执行用户程序时，CPU 处于 <code>U</code> 级，<br>但当用户需要访问操作系统的资源（如系统调用），需要切换到 <code>S</code> 级。结束时，再切换回 <code>U</code> 级。<br><code>M</code> 是机器模式，是最高特权级，用于实现操作系统的启动和关机，同时 <code>M</code> 级别也是最高特权级，<br>可以执行一切指令。</p>
+<p>特权级的切换主要的认为是保存和恢复上下文。</p>
+<h1 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h1><h2 id="多道应用程序加载"><a href="#多道应用程序加载" class="headerlink" title="多道应用程序加载"></a>多道应用程序加载</h2><p>由于需要实现多道程序执行，我们需要将待执行的应用程序加载到内存，这个为每个应用程序设置<br>固定的大小，即 0x20000 字节。然后将应用程序加载到对应的位置即可。</p>
+<h2 id="switch-函数"><a href="#switch-函数" class="headerlink" title="__switch() 函数"></a>__switch() 函数</h2><p><code>__swicth()</code> 函数实现上下文切换，上下文切换的时候需要保存当前的寄存器状态，<br>然后恢复下一个任务的寄存器状态。</p>
+<p>具体的说，保存当前任务上下文的 <code>ra</code> <code>sp</code> <code>s0-s11</code> 寄存器，然后恢复下一个任务的寄存器状态。<br>在实现的时候，遵循 <code>RISC-V</code> 的函数调用约定，使用 <code>a0</code> 和 <code>a1</code> 寄存器传递函数调用参数，<br>即当前任务和下一个任务的 <code>TaskContext</code> 指针。</p>
+<h2 id="管理多道程序的执行"><a href="#管理多道程序的执行" class="headerlink" title="管理多道程序的执行"></a>管理多道程序的执行</h2><p>大部分程序的执行流程都是小部分有效指令的和大部分的 <code>I\O</code> 指令，在等待 <code>I\O</code> 时， <code>CPU</code><br>处于空闲状态，这显然与我们压榨 <code>CPU</code> 的理念不同，所有我们希望，当一个程序在等待 <code>I\O</code><br>操作时，应该将 <code>CPU</code> 的控制权交给另一个程序，这样就可以充分利用 <code>CPU</code> 的计算能力。<br>为此我们需要实现 <code>sys_yield()</code> 。同样的，当一个程序运行结束时，我们也希望它交出<br><code>CPU</code> 的控制权，让其他程序执行，这需要实现 <code>sys_exit()</code> 。这两个函数的实现过程基本<br>一致，首先是修改当前程序控制块的描述的程序状态，然后切换到下一个程序执行。</p>
+<h2 id="分时多任务系统"><a href="#分时多任务系统" class="headerlink" title="分时多任务系统"></a>分时多任务系统</h2><p>这里主要实现时钟中断相关和抢占式调度，有了时钟中断，还可以实现更复杂的调度算法。</p>
 
       
     </div>
