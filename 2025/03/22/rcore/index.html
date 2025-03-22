@@ -19,24 +19,26 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"whyuwhyi.me","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="这是我的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="whywhy">
-<meta property="og:url" content="http://whyuwhyi.me/index.html">
+    <meta name="description" content="ch1_start() 函数_start() 函数是程序的入口函数，为了实现一个完全不依赖 rust 标准库的操作系统内核，首先移除了 rust 标准库依赖，随后我们需要为编译器提供入口函数 _start()。 123extern &quot;C&quot; fn _start() &#123;    loop&#123;&#125;;&#125;  实现 exit() 系统调用为编译器提供了入口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rcore">
+<meta property="og:url" content="http://whyuwhyi.me/2025/03/22/rcore/index.html">
 <meta property="og:site_name" content="whywhy">
-<meta property="og:description" content="这是我的个人博客">
+<meta property="og:description" content="ch1_start() 函数_start() 函数是程序的入口函数，为了实现一个完全不依赖 rust 标准库的操作系统内核，首先移除了 rust 标准库依赖，随后我们需要为编译器提供入口函数 _start()。 123extern &quot;C&quot; fn _start() &#123;    loop&#123;&#125;;&#125;  实现 exit() 系统调用为编译器提供了入口">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-03-22T09:53:41.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:40:59.558Z">
 <meta property="article:author" content="whywhy">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://whyuwhyi.me/">
+<link rel="canonical" href="http://whyuwhyi.me/2025/03/22/rcore/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"en","comments":"","permalink":"","path":"index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://whyuwhyi.me/2025/03/22/rcore/","path":"2025/03/22/rcore/","title":"rcore"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>whywhy</title>
+<title>rcore | whywhy</title>
   
 
 
@@ -66,7 +68,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">whywhy</h1>
+      <p class="site-title">whywhy</p>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -88,7 +90,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -101,6 +103,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ch1"><span class="nav-number">1.</span> <span class="nav-text">ch1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#start-%E5%87%BD%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">_start() 函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0-exit-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">实现 exit() 系统调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0-write-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">实现 write() 系统调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0-shutdown"><span class="nav-number">1.4.</span> <span class="nav-text">实现 shutdown()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E6%B8%85%E7%A9%BA-bss-%E6%AE%B5"><span class="nav-number">1.5.</span> <span class="nav-text">程序内存布局和清空 bss 段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ch3"><span class="nav-number">2.</span> <span class="nav-text">ch3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#switch-%E5%87%BD%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">__switch() 函数</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -142,16 +145,17 @@
 
     </div>
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
     <link itemprop="mainEntityOfPage" href="http://whyuwhyi.me/2025/03/22/rcore/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -165,13 +169,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | whywhy">
+      <meta itemprop="name" content="rcore | whywhy">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/03/22/rcore/" class="post-title-link" itemprop="url">rcore</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          rcore
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -194,8 +198,7 @@
     
     
     
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="ch1"><a href="#ch1" class="headerlink" title="ch1"></a>ch1</h1><h2 id="start-函数"><a href="#start-函数" class="headerlink" title="_start() 函数"></a><code>_start()</code> 函数</h2><p><code>_start()</code> 函数是程序的入口函数，为了实现一个完全不依赖 <code>rust</code> 标准库的操作系统内核，<br>首先移除了 <code>rust</code> 标准库依赖，随后我们需要为编译器提供入口函数 <code>_start()</code>。</p>
+    <div class="post-body" itemprop="articleBody"><h1 id="ch1"><a href="#ch1" class="headerlink" title="ch1"></a>ch1</h1><h2 id="start-函数"><a href="#start-函数" class="headerlink" title="_start() 函数"></a><code>_start()</code> 函数</h2><p><code>_start()</code> 函数是程序的入口函数，为了实现一个完全不依赖 <code>rust</code> 标准库的操作系统内核，<br>首先移除了 <code>rust</code> 标准库依赖，随后我们需要为编译器提供入口函数 <code>_start()</code>。</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="keyword">fn</span> <span class="title function_">_start</span>() &#123;</span><br><span class="line">    <span class="keyword">loop</span>&#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="实现-exit-系统调用"><a href="#实现-exit-系统调用" class="headerlink" title="实现 exit() 系统调用"></a>实现 <code>exit()</code> 系统调用</h2><p>为编译器提供了入口函数之后，编译器就可以编译程序了。但是程序还没有一个正常的退出方式，<br>我们需要为内核实现 <code>exit()</code> 系统调用，这样程序就可以正常退出了。使用 <code>ecall</code> 指令可以访问<br>操作系统提供的系统调用。</p>
@@ -208,7 +211,6 @@
 <p>具体的说，保存当前任务上下文的 <code>ra</code> <code>sp</code> <code>s0-s11</code> 寄存器，然后恢复下一个任务的寄存器状态。</p>
 <p>在实现的时候，遵循 <code>RISC-V</code> 的函数调用约定，使用 <code>a0</code> 和 <code>a1</code> 寄存器传递函数调用参数，<br>即当前任务和下一个任务的 <code>TaskContext</code> 指针。</p>
 
-      
     </div>
 
     
@@ -216,99 +218,22 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/27/rust-learnning/" rel="prev" title="rust learnning record">
+                  <i class="fa fa-angle-left"></i> rust learnning record
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
 
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://whyuwhyi.me/2025/02/27/rust-learnning/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="whywhy">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="whywhy">
-      <meta itemprop="description" content="这是我的个人博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | whywhy">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/02/27/rust-learnning/" class="post-title-link" itemprop="url">rust learnning record</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2025-02-27 22:15:16" itemprop="dateCreated datePublished" datetime="2025-02-27T22:15:16+08:00">2025-02-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2025-03-22 17:53:09" itemprop="dateModified" datetime="2025-03-22T17:53:09+08:00">2025-03-22</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="Struct"><a href="#Struct" class="headerlink" title="Struct"></a>Struct</h1><h2 id="Unit-like-Struct"><a href="#Unit-like-Struct" class="headerlink" title="Unit-like Struct"></a>Unit-like Struct</h2><p>没有任何字段的结构体。如：</p>
-<pre><code>struct UnitLikeStruct;
-</code></pre>
-<h2 id="Struct-Update-Syntax"><a href="#Struct-Update-Syntax" class="headerlink" title="Struct Update Syntax"></a>Struct Update Syntax</h2><p>可以利用已有结构体创建新的结构体。如：</p>
-<pre><code>struct Point &#123;
-    x: i32,
-    y: i32,
-    z: i31,
-&#125;
-
-let p1 = Point &#123; x: 0, y: 0, z: 0 &#125;;
-let p2 = Point &#123; x: 1, ..p1 &#125;;
-</code></pre>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
 
 
 
