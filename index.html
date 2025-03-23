@@ -180,9 +180,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2025-03-22 17:53:41 / Modified: 22:23:47" itemprop="dateCreated datePublished" datetime="2025-03-22T17:53:41+08:00">2025-03-22</time>
+      <time title="Created: 2025-03-22 17:53:41" itemprop="dateCreated datePublished" datetime="2025-03-22T17:53:41+08:00">2025-03-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-03-23 23:36:09" itemprop="dateModified" datetime="2025-03-23T23:36:09+08:00">2025-03-23</time>
     </span>
 
   
@@ -210,10 +216,41 @@
 <h2 id="实现特权级切换"><a href="#实现特权级切换" class="headerlink" title="实现特权级切换"></a>实现特权级切换</h2><p><code>RISC-V</code> 共有三种特权级，分别是 <code>M</code> 级、<code>S</code> 级和 <code>U</code> 级。执行用户程序时，CPU 处于 <code>U</code> 级，<br>但当用户需要访问操作系统的资源（如系统调用），需要切换到 <code>S</code> 级。结束时，再切换回 <code>U</code> 级。<br><code>M</code> 是机器模式，是最高特权级，用于实现操作系统的启动和关机，同时 <code>M</code> 级别也是最高特权级，<br>可以执行一切指令。</p>
 <p>特权级的切换主要的认为是保存和恢复上下文。</p>
 <h1 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h1><h2 id="多道应用程序加载"><a href="#多道应用程序加载" class="headerlink" title="多道应用程序加载"></a>多道应用程序加载</h2><p>由于需要实现多道程序执行，我们需要将待执行的应用程序加载到内存，这个为每个应用程序设置<br>固定的大小，即 0x20000 字节。然后将应用程序加载到对应的位置即可。</p>
-<h2 id="switch-函数"><a href="#switch-函数" class="headerlink" title="__switch() 函数"></a>__switch() 函数</h2><p><code>__swicth()</code> 函数实现上下文切换，上下文切换的时候需要保存当前的寄存器状态，<br>然后恢复下一个任务的寄存器状态。</p>
+<h2 id="switch-函数"><a href="#switch-函数" class="headerlink" title="__switch() 函数"></a><code>__switch()</code> 函数</h2><p><code>__swicth()</code> 函数实现上下文切换，上下文切换的时候需要保存当前的寄存器状态，<br>然后恢复下一个任务的寄存器状态。</p>
 <p>具体的说，保存当前任务上下文的 <code>ra</code> <code>sp</code> <code>s0-s11</code> 寄存器，然后恢复下一个任务的寄存器状态。<br>在实现的时候，遵循 <code>RISC-V</code> 的函数调用约定，使用 <code>a0</code> 和 <code>a1</code> 寄存器传递函数调用参数，<br>即当前任务和下一个任务的 <code>TaskContext</code> 指针。</p>
 <h2 id="管理多道程序的执行"><a href="#管理多道程序的执行" class="headerlink" title="管理多道程序的执行"></a>管理多道程序的执行</h2><p>大部分程序的执行流程都是小部分有效指令的和大部分的 <code>I\O</code> 指令，在等待 <code>I\O</code> 时， <code>CPU</code><br>处于空闲状态，这显然与我们压榨 <code>CPU</code> 的理念不同，所有我们希望，当一个程序在等待 <code>I\O</code><br>操作时，应该将 <code>CPU</code> 的控制权交给另一个程序，这样就可以充分利用 <code>CPU</code> 的计算能力。<br>为此我们需要实现 <code>sys_yield()</code> 。同样的，当一个程序运行结束时，我们也希望它交出<br><code>CPU</code> 的控制权，让其他程序执行，这需要实现 <code>sys_exit()</code> 。这两个函数的实现过程基本<br>一致，首先是修改当前程序控制块的描述的程序状态，然后切换到下一个程序执行。</p>
 <h2 id="分时多任务系统"><a href="#分时多任务系统" class="headerlink" title="分时多任务系统"></a>分时多任务系统</h2><p>这里主要实现时钟中断相关和抢占式调度，有了时钟中断，还可以实现更复杂的调度算法。</p>
+<h1 id="ch4"><a href="#ch4" class="headerlink" title="ch4"></a>ch4</h1><h2 id="开启-MMU-使能"><a href="#开启-MMU-使能" class="headerlink" title="开启 MMU 使能"></a>开启 <code>MMU</code> 使能</h2><p>默认情况下，<code>RISC-V</code> 是没有开启 <code>MMU</code> 的，这导致了所有的程序都运行在同一个地址空间，<br>我们使用物理地址直接访问内存。开启 <code>MMU</code> 之后，我们可以使用虚拟地址访问内存，并且<br>可以更好的管理内存访问。</p>
+<p>通过修改 <code>satp</code> 寄存器，具体的说，我们需要设置 <code>satp</code> 寄存器的 <code>MODE</code> 字段为 <code>8</code> 。</p>
+<h2 id="地址格式（从高位到低位）"><a href="#地址格式（从高位到低位）" class="headerlink" title="地址格式（从高位到低位）"></a>地址格式（从高位到低位）</h2><ol>
+<li>物理地址：44位页框号，12位页内偏移</li>
+<li>虚拟地址：27位页号，12位页内偏移</li>
+</ol>
+<p>注：虚拟页面和物理页框都按 <code>4k</code> 对齐，故页内偏移实际上一致，在地址转换时只需要<br>找到页号和页框号的映射即可。</p>
+<h2 id="页表格式（从高位到低位）"><a href="#页表格式（从高位到低位）" class="headerlink" title="页表格式（从高位到低位）"></a>页表格式（从高位到低位）</h2><p>10位保留位（必须为0），44位页框号，2位 <code>RSW</code> （保留位，必须为0） 以及8位标志位。</p>
+<p>标志位包括：</p>
+<ul>
+<li><p><code>D</code> ：Dirty，表示页面是否被修改过。</p>
+</li>
+<li><p><code>A</code> ：Accessed，表示页面是否被访问过。</p>
+</li>
+<li><p><code>G</code> ：Global，表示页面是否是全局页面。</p>
+</li>
+<li><p><code>U</code> ：User，表示页面是否是用户页面。</p>
+</li>
+<li><p><code>X</code> ：Executable，表示页面是否可执行。</p>
+</li>
+<li><p><code>W</code> ：Writable，表示页面是否可写。</p>
+</li>
+<li><p><code>R</code> ：Readable，表示页面是否可读。</p>
+</li>
+<li><p><code>V</code> ：Valid，表示页面是否有效。</p>
+</li>
+</ul>
+<h2 id="物理页的分配与回收"><a href="#物理页的分配与回收" class="headerlink" title="物理页的分配与回收"></a>物理页的分配与回收</h2><p>采用栈式物理页帧管理策略，使用 <code>current</code> 和 <code>end</code> 指示从未分配过的物理页框的页框号，<br>并使用 <code>recycled</code> 数组记录已分配过并回收的页框号。</p>
+<p>分配的逻辑是，首先在 <code>recycled</code> 中查找是否有已回收的页框号，如果有则直接返回，否则<br>检测 <code>current</code> 和 <code>end</code> 是否相等，如果相等则代表无页框可用，直接 <code>panic</code> ，否则返回 <code>current</code> ，<br>并将 <code>current</code> 加1。</p>
+<p>回收则比较简单，直接将页框号加入 <code>recycled</code> 数组即可。</p>
+<h2 id="物理内存的访问"><a href="#物理内存的访问" class="headerlink" title="物理内存的访问"></a>物理内存的访问</h2><p>物理页帧的访问，使用 <code>into()</code> 将物理页框号直接转化成物理地址，根据物理地址访问内存即可。<br>尽管我们在程序中得到的物理地址会被 <code>MMU</code> 视作虚拟地址，但是由于这里虚拟页号到物理页框号<br>的映射是恒等隐射，所有虚拟地址和物理地址一样。</p>
 
       
     </div>
@@ -276,7 +313,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2025-03-22 17:53:09" itemprop="dateModified" datetime="2025-03-22T17:53:09+08:00">2025-03-22</time>
+      <time title="Modified: 2025-03-23 15:41:07" itemprop="dateModified" datetime="2025-03-23T15:41:07+08:00">2025-03-23</time>
     </span>
 
   
@@ -301,6 +338,18 @@
 
 let p1 = Point &#123; x: 0, y: 0, z: 0 &#125;;
 let p2 = Point &#123; x: 1, ..p1 &#125;;
+</code></pre>
+<h1 id="类型详解"><a href="#类型详解" class="headerlink" title="类型详解"></a>类型详解</h1><h2 id="newtype-的使用"><a href="#newtype-的使用" class="headerlink" title="newtype 的使用"></a>newtype 的使用</h2><p>在 <code>rust</code> 中无法为外部类型实现外部特征，想要做到这一点，可以利用 <code>newtype</code> 将外部类型<br>包装成新的类型。如：</p>
+<pre><code>struct Wrapper(Vec&lt;String&gt;);
+
+impl fmt::Display for Wrapper &#123;
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result &#123;
+        write!(f, &quot;[&#123;&#125;]&quot;, self.0.join(&quot;, &quot;))
+    &#125;
+&#125;
+</code></pre>
+<h2 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h2><p>类型别名类似C语言中 <code>typedef</code> ，可以简化复杂的类型名称，方便使用。如：</p>
+<pre><code>type Result&lt;T&gt; = std::result::Result&lt;T, std::io::Error&gt;;
 </code></pre>
 
       
