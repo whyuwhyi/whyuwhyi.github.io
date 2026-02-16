@@ -4,16 +4,19 @@
 
 # Site
 title: whywhy
-subtitle: ''
-description: '这是我的个人博客'
+subtitle: '个人技术博客'
+description: '记录学习、实践与思考'
 keywords:
+  - whywhy
+  - blog
+  - 技术
 author: whywhy
-language: en
+language: zh-CN
 timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://whyuwhyi.me
+url: https://whyuwhyi.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -102,5 +105,5 @@ theme: next
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: git@github.com:whyuwhyi/whyuwhyi.github.io.git
+  repo: https://github.com/whyuwhyi/whyuwhyi.github.io.git
   branch: main
