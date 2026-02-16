@@ -39,7 +39,7 @@ toc: true
 
 ## 3. 全局模块边界
 
-```mermaid
+{% mermaid %}
 flowchart LR
   Host[Host/Driver] -->|host_wg_new| CTA[CTAinterface + cta_scheduler_top]
   CTA -->|cu_wf_new| SM0[SM_wrapper 0]
@@ -51,7 +51,7 @@ flowchart LR
   SM0 -->|cu_wf_done| CTA
   SM1 -->|cu_wf_done| CTA
   CTA -->|host_wg_done| Host
-```
+{% endmermaid %}
 
 这张图对应了 `GPGPU_top` 的主连接关系：  
 主机提交 WG，CTA 调度并拆分为 WF，下发到各 SM；SM 执行后通过访存网络接入 L2；WF 全部完成后回报 Host。
@@ -127,7 +127,7 @@ object CTA_SCHE_CONFIG {
 
 ## 7. 执行链路（从提交到完成）
 
-```mermaid
+{% mermaid %}
 sequenceDiagram
   participant H as Host
   participant C as CTA Scheduler
@@ -140,7 +140,7 @@ sequenceDiagram
   M-->>S: 访存返回
   S-->>C: cu_wf_done(wf_tag)
   C-->>H: host_wg_done(wg_id)
-```
+{% endmermaid %}
 
 这个过程的关键在“粒度切换”：
 

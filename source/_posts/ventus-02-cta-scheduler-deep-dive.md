@@ -51,7 +51,7 @@ resource_table_inst.io.dealloc <> cu_interface_inst.io.rt_dealloc
 
 ## 3. 端到端数据流图
 
-```mermaid
+{% mermaid %}
 flowchart LR
   H[Host: host_wg_new] --> W[wg_buffer]
   W --> A[allocator]
@@ -65,7 +65,7 @@ flowchart LR
   CU -->|cu_wf_done(wf_tag)| C
   C -->|rt_dealloc| R
   C -->|host_wg_done| H
-```
+{% endmermaid %}
 
 调度闭环可以简化为两条环：
 
@@ -262,7 +262,7 @@ io.host_wg_done.valid := (fsm === FSM.UPDATE && wf_gather_finish) || (fsm === FS
 
 ## 8. 关键时序（从新 WG 到回收）
 
-```mermaid
+{% mermaid %}
 sequenceDiagram
   participant H as Host
   participant WB as wg_buffer
@@ -283,7 +283,7 @@ sequenceDiagram
   CU-->>CI: cu_wf_done(wf_tag)
   CI->>RT: rt_dealloc(最后一个WF完成)
   CI-->>H: host_wg_done
-```
+{% endmermaid %}
 
 ## 9. 调试与验证建议
 
